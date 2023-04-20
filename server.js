@@ -29,6 +29,7 @@ app.use('/users', usersRouter)
 app.use('/categories', categoriesRouter)
 app.use('/products', productsRouter)
 
+
 const handleMongoDBError = (error) => {
   const { code } = error;
   if (code == 8000) {

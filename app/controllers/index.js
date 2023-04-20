@@ -5,5 +5,5 @@ import productController from './product.controller.js'
 export {
     userController,
     categoryController,
-    productController
+    productController,
 }

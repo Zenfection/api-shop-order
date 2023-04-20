@@ -1,6 +1,6 @@
 import { validationResult } from 'express-validator'
 import { MongoDB } from '@utils'
-import { UserService } from '@services'
+import { UserService, CartService } from '@services'
 import createError from 'http-errors'
 import httpStatus from 'http-status'
 import bcrypt from 'bcrypt'
@@ -19,7 +19,7 @@ const login = async (req, res) => {
     try {
         const User = new UserService(MongoDB.client)
 
-        const existUser = await User.findOne({ $or: [{ username }, { email }] })
+        const existUser = await User.findOne({ $or: [{ email: email }, { username: username }] })
         if (!!existUser) {
             //? Check password with JWT
             let isMatch = await bcrypt.compare(password, existUser.password)
@@ -45,9 +45,7 @@ const login = async (req, res) => {
             }
         }
     } catch (exception) {
-        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-            message: exception.toString()
-        })
+        throw createError(httpStatus.INTERNAL_SERVER_ERROR, exception)
     }
 }
 
@@ -57,20 +55,18 @@ const register = async (req, res) => {
     try {
         const user = await userRepository.register({ username, fullname, email, password, active, phone, address, province, city, ward })
         if (!!user.messageError) {
-            res.status(HttpStatusCode.BAD_REQUEST).json({
+            res.status(httpStatus.BAD_REQUEST).json({
                 message: 'Can not register user',
                 validationErrors: user.validationErrors
             })
         } else {
-            res.status(HttpStatusCode.CREATED).json({
+            res.status(httpStatus.CREATED).json({
                 message: 'register user success',
                 data: user
             })
         }
-    } catch (error) {
-        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-            message: error.toString()
-        })
+    } catch (exception) {
+        throw createError(httpStatus.INTERNAL_SERVER_ERROR, exception)
     }
 }
 
@@ -91,47 +87,31 @@ const getDetailUser = async (req, res) => {
                 error: 'User not found'
             })
         }
-    } catch (error) {
-        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-            message: 'Can not get user by id',
-            error: error.toString()
-        })
+    } catch (exception) {
+        throw createError(httpStatus.INTERNAL_SERVER_ERROR, exception)
     }
 }
 
-/*
+const getCart = async (req, res, next) => {
+    //? Validate request
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+        return res.status(httpStatus.BAD_REQUEST).json({ errors: errors.array() })
+    }
 
-
-const register = async ({ username, fullname, email, password, active, phone, address, province, city, ward }) => {
-    try{
-        // hash password
-        let hashedPassword = await bcrypt.hash(password, parseInt(process.env.SECRET_PHARSE))
-        
-        // use service create
-        const User = new UserService(MongoDB.client);
-        const result = await User.create({
-            username,
-            fullname,
-            email,
-            password: hashedPassword,
-            active,
-            phone,
-            address,
-            province,
-            city,
-            ward
-        });
-        return result
-    } catch (error){
-        print(error.toString(), type.ERROR)
-        throw new Exception(Exception.CANNOT_REGISTER_USER)
+    const { username } = req.body
+    try {
+        const cart = new CartService(MongoDB.client)
+        const result = await cart.findCart(username)
+        res.status(httpStatus.OK).json(result)
+    } catch (exception) {
+        throw createError(httpStatus.INTERNAL_SERVER_ERROR, exception)
     }
 }
-
-*/
 
 export default {
     login,
     register,
-    getDetailUser
+    getDetailUser,
+    getCart
 }

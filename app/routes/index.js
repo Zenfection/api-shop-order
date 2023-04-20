@@ -5,5 +5,5 @@ import productsRouter from './products.routes.js'
 export {
     usersRouter,
     categoriesRouter,
-    productsRouter
+    productsRouter,
 }
