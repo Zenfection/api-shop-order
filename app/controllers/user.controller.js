@@ -109,9 +109,47 @@ const getCart = async (req, res, next) => {
     }
 }
 
+const addToCart = async(req, res, next) => {
+    //? Validate request
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+        return res.status(httpStatus.BAD_REQUEST).json({ errors: errors.array() })
+    }
+
+    const { username, id_product, amount } = req.body
+    try {
+        const cart = new CartService(MongoDB.client)
+        const result = await cart.addToCart(username, id_product, amount)
+        res.status(httpStatus.OK).json(result)
+    }
+    catch (exception) {
+        throw createError(httpStatus.INTERNAL_SERVER_ERROR, exception)
+    }
+}
+
+const deleteCart = async(req, res, next) => {
+    //? Validate request
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+        return res.status(httpStatus.BAD_REQUEST).json({ errors: errors.array() })
+    }
+
+    const { username, id_product, amount } = req.body
+    try {
+        const cart = new CartService(MongoDB.client)
+        const result = await cart.deleteCart(username, id_product, amount)
+        res.status(httpStatus.OK).json(result)
+    }
+    catch (exception) {
+        throw createError(httpStatus.INTERNAL_SERVER_ERROR, exception)
+    }
+}
+
 export default {
     login,
     register,
     getDetailUser,
-    getCart
+    getCart,
+    addToCart,
+    deleteCart
 }

@@ -1,11 +1,8 @@
+import jwt from 'jsonwebtoken';
 import httpStatus from 'http-status';
-import jwt from 'jsonwebtoken'
-
-
-// ['/users/login', '/users/register', '/categories', '/products', '/products/count']
 
 const PUBLIC_URLS_REGEX = /\/users\/(login|register)|\/categories|\/products|\/products\/count/;
-
+const BEARER_PREFIX = 'Bearer ';
 
 const byPassToken = (req) => {
     const url = req.url.toLowerCase().trim();
@@ -13,16 +10,22 @@ const byPassToken = (req) => {
 };
 
 const requireToken = (req, res) => {
-    const token = req.headers?.['x-access-token'] ?? req.headers?.['authorization'] ?? null
-    if (!token) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
         res.status(httpStatus.UNAUTHORIZED).json({
             message: 'Token is required',
-        })
-        return
+        });
+        return null;
     }
-    return token
-}
-
+    const tokenMatch = authHeader.match(/^Bearer (.+)/);
+    if (!tokenMatch) {
+        res.status(httpStatus.UNAUTHORIZED).json({
+            message: 'Invalid token format',
+        });
+        return null;
+    }
+    return tokenMatch[1];
+};
 
 export default async function checkToken(req, res, next) {
     // check bypass 
@@ -31,7 +34,10 @@ export default async function checkToken(req, res, next) {
     }
     // check token
     try {
-        const token = requireToken(req, res).replace('Bearer ', '');
+        const token = requireToken(req, res);
+        if (!token) {
+            return;
+        }
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const isExpired = decoded.exp < Date.now() / 1000;
         if (isExpired) {
@@ -43,7 +49,7 @@ export default async function checkToken(req, res, next) {
     } catch (error) {
         return res.status(httpStatus.UNAUTHORIZED).json({
             message: 'Unauthorized',
-            error: error.toString(),
+            error: error.message,
         });
     }
 }

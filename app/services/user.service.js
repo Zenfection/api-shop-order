@@ -118,17 +118,17 @@ class UserService {
         return result.value
     }
 
-    async delete(id) {
-        const result = await this.User.findOneAndDelete({
-            _id: ObjectId.createFromHexString(id)
-        })
-        return result.value
-    }
+    // async delete(id) {
+    //     const result = await this.User.findOneAndDelete({
+    //         _id: ObjectId.createFromHexString(id)
+    //     })
+    //     return result.value
+    // }
 
-    async deleteAll() {
-        const result = await this.User.deleteMany({})
-        return result.deletedCount
-    }
+    // async deleteAll() {
+    //     const result = await this.User.deleteMany({})
+    //     return result.deletedCount
+    // }
 }
 
 export default UserService
