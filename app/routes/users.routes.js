@@ -24,10 +24,10 @@ router.post('/getcart', [
 ], userController.getCart)
 
 router.post('/addcart', [
-        body('username').exists().isString(),
-        body('id_product').exists().isString(),
-        body('amount').exists().isInt({ min: 1 })
-    ], userController.addToCart)
+    body('username').exists().isString(),
+    body('id_product').exists().isString(),
+    body('amount').exists().isInt({ min: 1 })
+], userController.addToCart)
 
 router.post('/removecart', [
     body('username').exists().isString(),
@@ -35,9 +35,10 @@ router.post('/removecart', [
     body('amount').exists().isInt({ min: 1 })
 ], userController.deleteCart)
 
-    // .delete('/cart', [
-    //     body('username').exists().isString(),
-    //     body('id_product').exists().isString(),
-    // ], userController.deleteCart)
+router.post('/removecart', [
+    body('username').exists().isString(),
+    body('id_product').exists().isString(),
+], userController.removeProductCart)
+
 
 export default router
