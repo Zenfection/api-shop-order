@@ -35,10 +35,4 @@ router.post('/removecart', [
     body('amount').exists().isInt({ min: 1 })
 ], userController.deleteCart)
 
-router.post('/removecart', [
-    body('username').exists().isString(),
-    body('id_product').exists().isString(),
-], userController.removeProductCart)
-
-
 export default router

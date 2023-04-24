@@ -114,19 +114,6 @@ class CartService {
             message: 'Cart not found'
         }
     }
-
-    async removeProductCart(username, id_product){
-        id_product = ObjectId.createFromHexString(id_product)
-
-        await this.Cart.deleteOne({
-            username,
-            id_product
-        })
-        return {
-            message: 'Remove product successfully'
-        }
-    }
-
 }
 
 export default CartService;
