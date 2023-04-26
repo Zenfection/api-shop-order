@@ -50,24 +50,25 @@ const login = async (req, res) => {
 }
 
 const register = async (req, res) => {
-    const { username, fullname, email, password, active, phone, address, province, city, ward } = req.body
+    // const { username, fullname, email, password, active, phone, address, province, district, ward } = req.body
 
-    try {
-        const user = await userRepository.register({ username, fullname, email, password, active, phone, address, province, city, ward })
-        if (!!user.messageError) {
-            res.status(httpStatus.BAD_REQUEST).json({
-                message: 'Can not register user',
-                validationErrors: user.validationErrors
-            })
-        } else {
-            res.status(httpStatus.CREATED).json({
-                message: 'register user success',
-                data: user
-            })
-        }
-    } catch (exception) {
-        throw createError(httpStatus.INTERNAL_SERVER_ERROR, exception)
-    }
+    // try {
+    //     const User = new UserService(MongoDB.client)
+    //     const user = await userRepository.register({ username, fullname, email, password, active, phone, address, province, district, ward })
+    //     if (!!user.messageError) {
+    //         res.status(httpStatus.BAD_REQUEST).json({
+    //             message: 'Can not register user',
+    //             validationErrors: user.validationErrors
+    //         })
+    //     } else {
+    //         res.status(httpStatus.CREATED).json({
+    //             message: 'register user success',
+    //             data: user
+    //         })
+    //     }
+    // } catch (exception) {
+    //     throw createError(httpStatus.INTERNAL_SERVER_ERROR, exception)
+    // }
 }
 
 
@@ -88,6 +89,32 @@ const getDetailUser = async (req, res) => {
             })
         }
     } catch (exception) {
+        throw createError(httpStatus.INTERNAL_SERVER_ERROR, exception)
+    }
+}
+
+const updateUser = async (req, res) => {
+    //? Validate request
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+        return res.status(httpStatus.BAD_REQUEST).json({ errors: errors.array() })
+    }
+
+    const { id, username, fullname, email, password, active, phone, address, province, district, ward } = req.body
+    // filter undefined value
+    const updateData = { username, fullname, email, password, active, phone, address, province, district, ward }
+    Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key])
+
+    try {
+        const User = new UserService(MongoDB.client)
+        const result = await User.update(id, updateData)
+        if(result){
+            res.status(httpStatus.OK).json({
+                message: `Update user with id: ${id} success`,
+                data: result
+            })
+        }
+    } catch(exception){
         throw createError(httpStatus.INTERNAL_SERVER_ERROR, exception)
     }
 }
@@ -149,6 +176,7 @@ export default {
     login,
     register,
     getDetailUser,
+    updateUser,
     getCart,
     addToCart,
     deleteCart

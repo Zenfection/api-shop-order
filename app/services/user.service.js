@@ -9,7 +9,7 @@ class UserService {
     async validate(user) {
         const errors = {};
 
-        //* username, fullname, email, password, phone, address, province, city, ward
+        //* username, fullname, email, password, phone, address, province, district, ward
         if (!validator.isLength(user.username, { min: 6 }) || !validator.isAlphanumeric(user.username)) {
             errors.username = 'Username length must be at least 6 characters and only contain letters and numbers'
         } else if (!validator.isLength(user.fullname, { min: 6 })) {
@@ -25,15 +25,15 @@ class UserService {
             errors.phone = 'Phone is not valid';
         }
 
-        //* address, province, city, ward
+        //* address, province, district, ward
         if (user.address && !validator.isLength(user.address, { min: 6 })) {
             errors.address = 'Address length must be at least 6 characters';
         }
         if (user.province && !validator.isLength(user.province, { min: 2 })) {
             errors.province = 'Province length must be at least 2 characters';
         }
-        if (user.city && !validator.isLength(user.city, { min: 2 })) {
-            errors.city = 'City length must be at least 2 characters';
+        if (user.district && !validator.isLength(user.district, { min: 2 })) {
+            errors.district = 'District length must be at least 2 characters';
         }
         if (user.ward && !validator.isLength(user.ward, { min: 2 })) {
             errors.ward = 'Ward length must be at least 2 characters';
@@ -51,7 +51,7 @@ class UserService {
     }
 
     async extactUserData(payload) {
-        // accept null: phone, address, province, city, ward
+        // accept null: phone, address, province, district, ward
         const user = {
             _id: payload._id && ObjectId.createFromHexString(payload._id),
             username: payload.username,
@@ -62,7 +62,7 @@ class UserService {
             phone: payload.phone ?? null,
             address: payload.address ?? null,
             province: payload.province ?? null,
-            city: payload.city ?? null,
+            district: payload.district ?? null,
             ward: payload.ward ?? null,
         }
 
@@ -109,13 +109,20 @@ class UserService {
         const filter = {
             _id: ObjectId.createFromHexString(id)
         }
-        const update = this.extactUserData(payload)
+
+        // patch update (update only fields that are present in the request)
+        const updateDoc = {
+            $set: payload,
+        }
+
         const result = await this.User.findOneAndUpdate(
             filter,
-            { $set: update },
-            { returnDocument: 'after' }
+            updateDoc,
+            { returnOriginal: false }
         )
-        return result.value
+
+        // ignore password
+        return {...result.value, password: undefined}
     }
 
     // async delete(id) {

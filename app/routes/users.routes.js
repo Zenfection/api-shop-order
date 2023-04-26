@@ -19,6 +19,20 @@ router.post('/login', [
 
 router.post('/register', userController.register)
 
+router.patch('/update', [
+    //username, fullname, email, password, active, phone, address, province, district, ward
+    body('username').optional().isString(),
+    body('fullname').optional().isString(),
+    body('email').optional().isEmail(),
+    body('password').optional().isString(),
+    body('active').optional().isBoolean(),
+    body('phone').optional().isString(),
+    body('address').optional().isString(),
+    body('province').optional().isString(),
+    body('district').optional().isString(),
+    body('ward').optional().isString()
+], userController.updateUser)
+
 router.post('/getcart', [
     body('username').exists().isString()
 ], userController.getCart)

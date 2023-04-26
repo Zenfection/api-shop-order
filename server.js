@@ -15,7 +15,7 @@ app.use(helmet())   //? bảo mật với headers bằng middleware
 app.use(cors({    //? bảo mật chính sách request
   origin: process.env.FRONTEND_URL.split(','), // allow to server to accept request from different origin
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH','DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept'],
 }))
 const PORT = process.env.PORT || 3000;
