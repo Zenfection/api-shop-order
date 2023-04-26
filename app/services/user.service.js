@@ -115,14 +115,13 @@ class UserService {
             $set: payload,
         }
 
-        const result = await this.User.findOneAndUpdate(
-            filter,
-            updateDoc,
-            { returnOriginal: false }
-        )
+        const options = {
+            projection: { password: 0 },
+            returnOriginal: false
+        };
 
-        // ignore password
-        return {...result.value, password: undefined}
+        const result = await this.User.findOneAndUpdate(filter, updateDoc, options);
+        return result.value
     }
 
     // async delete(id) {

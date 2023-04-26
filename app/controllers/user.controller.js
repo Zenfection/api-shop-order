@@ -109,6 +109,8 @@ const updateUser = async (req, res) => {
         const User = new UserService(MongoDB.client)
         const result = await User.update(id, updateData)
         if(result){
+            //? replace result with updateData
+            Object.keys(updateData).forEach(key => result[key] = updateData[key])
             res.status(httpStatus.OK).json({
                 message: `Update user with id: ${id} success`,
                 data: result
