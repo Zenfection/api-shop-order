@@ -1,6 +1,6 @@
 import express from 'express'
 import { body, oneOf } from 'express-validator'
-import { userController } from '@controllers'
+import { userController, cartController, orderController } from '@controllers'
 
 const router = express.Router()
 
@@ -35,18 +35,29 @@ router.patch('/update', [
 
 router.post('/getcart', [
     body('username').exists().isString()
-], userController.getCart)
+], cartController.getCart)
 
 router.post('/addcart', [
     body('username').exists().isString(),
     body('id_product').exists().isString(),
     body('amount').exists().isInt({ min: 1 })
-], userController.addToCart)
+], cartController.addToCart)
 
 router.post('/removecart', [
     body('username').exists().isString(),
     body('id_product').exists().isString(),
     body('amount').exists().isInt({ min: 1 })
-], userController.deleteCart)
+], cartController.deleteCart)
+
+router.post('/createorder', [
+    body('username').exists().isString(),
+    body('customer').exists().isObject(),
+    body('status').exists().isString(),
+    body('order_date').exists().isString(),
+    body('shipped_date').exists().isString(),
+    body('delivered_date').exists().isString(),
+    body('total_price').exists().isInt({ min: 0 }),
+    body('products').exists().isArray()
+], orderController.createOrder)
 
 export default router

@@ -1,6 +1,6 @@
-import usersRouter from './users.routes.js'
-import categoriesRouter from './categories.routes.js'
-import productsRouter from './products.routes.js'
+import usersRouter from './library/users.routes.js'
+import categoriesRouter from './library/categories.routes.js'
+import productsRouter from './library/products.routes.js'
 
 export {
     usersRouter,

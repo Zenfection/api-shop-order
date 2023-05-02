@@ -1,12 +1,21 @@
 import { validationResult } from 'express-validator'
 import { MongoDB } from '@utils'
-import { UserService, CartService } from '@services'
+import { UserService } from '@services'
 import createError from 'http-errors'
 import httpStatus from 'http-status'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { ObjectId } from 'mongodb'
 
+
+/*
+    1. login
+    2. register
+    3. get detail user
+    4. update user
+    5. delete user
+    6. get list user
+*/
 
 const login = async (req, res) => {
     //? Validate request
@@ -121,65 +130,10 @@ const updateUser = async (req, res) => {
     }
 }
 
-const getCart = async (req, res, next) => {
-    //? Validate request
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-        return res.status(httpStatus.BAD_REQUEST).json({ errors: errors.array() })
-    }
-
-    const { username } = req.body
-    try {
-        const cart = new CartService(MongoDB.client)
-        const result = await cart.findCart(username)
-        res.status(httpStatus.OK).json(result)
-    } catch (exception) {
-        throw createError(httpStatus.INTERNAL_SERVER_ERROR, exception)
-    }
-}
-
-const addToCart = async(req, res, next) => {
-    //? Validate request
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-        return res.status(httpStatus.BAD_REQUEST).json({ errors: errors.array() })
-    }
-
-    const { username, id_product, amount } = req.body
-    try {
-        const cart = new CartService(MongoDB.client)
-        const result = await cart.addToCart(username, id_product, amount)
-        res.status(httpStatus.OK).json(result)
-    }
-    catch (exception) {
-        throw createError(httpStatus.INTERNAL_SERVER_ERROR, exception)
-    }
-}
-
-const deleteCart = async(req, res, next) => {
-    //? Validate request
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-        return res.status(httpStatus.BAD_REQUEST).json({ errors: errors.array() })
-    }
-
-    const { username, id_product, amount } = req.body
-    try {
-        const cart = new CartService(MongoDB.client)
-        const result = await cart.deleteCart(username, id_product, amount)
-        res.status(httpStatus.OK).json(result)
-    }
-    catch (exception) {
-        throw createError(httpStatus.INTERNAL_SERVER_ERROR, exception)
-    }
-}
 
 export default {
     login,
     register,
     getDetailUser,
     updateUser,
-    getCart,
-    addToCart,
-    deleteCart
 }
