@@ -1,38 +1,64 @@
 import { MongoDB } from '@utils'
-import { OrderService } from '@services'
+import { OrderService, CartService } from '@services'
 import createError from 'http-errors'
 import httpStatus from 'http-status'
+import { validationResult } from 'express-validator'
+import { nanoid } from 'nanoid'
 
 const handleRequest = async (req, res, next, action) => {
-    //? Validate request
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-        return res.status(httpStatus.BAD_REQUEST).json({ errors: errors.array() })
-    }
-
-    const { customer, products } = req.body
-    /*
-    username, customer[name, phone, address, email, province, district, ward], status, order_date, shipped_date, delivered_data, total_price, list_product (id_product, amount, price, name_product, image_product)
-    */
     try {
+        // Validate request
+        const errors = validationResult(req)
+        if (!errors.isEmpty()) {
+            return res.status(httpStatus.BAD_REQUEST).json({ errors: errors.array() })
+        }
+
+        const { username, customer, total_price, products } = req.body
+
+        // Call the action with the order service
         const order = new OrderService(MongoDB.client)
-        const result = await action({
-            order,
-            customer,
-            products
-        })
+        const result = await action(order, username, customer, total_price, products)
         res.status(httpStatus.OK).json(result)
     } catch (exception) {
-        throw createError(httpStatus.INTERNAL_SERVER_ERROR, exception)
+        // Handle any errors
+        next(createError(httpStatus.INTERNAL_SERVER_ERROR, exception))
     }
 }
 
-const createOrder = async (req, res) => {
-    handleRequest(req, res, async (order, customer, products) => {
-        return await order.createOrder(customer, products)
+const getOrder = async (req, res, next) => {
+    handleRequest(req, res, next, async (order, username) => {
+        const result = await order.getOrder(username)
+        if(result){
+            return result
+        }
+        throw new Error('Failed to get order')
     })
 }
 
+const createOrder = async (req, res, next) => {
+    handleRequest(req, res, next, async (order, username, customer, total_price, products) => {
+        const orderID = nanoid(10).toUpperCase() //? generate orderID
+        const status = 0 //? 0: Peeding, 1: Shipping, 2: Delivered, -1: Cancelled
+        const order_date = new Date().toLocaleDateString('en-GB') //? format dd/mm/yyyy
+        
+        const params = { orderID, username, customer, status, order_date, total_price, products }
+        const result = await order.createOrder(params)
+        if(result){
+            // clearCart
+            const cart = new CartService(MongoDB.client)
+            await cart.clearCart(username)
+            return result
+        }
+        throw new Error('Failed to create order')
+    })
+}
+
+const updateOrder = async (req, res, next) => {
+
+}
+
 export default {
-    createOrder
+    getOrder,
+    createOrder,
+    updateOrder
 }

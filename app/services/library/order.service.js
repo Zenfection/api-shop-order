@@ -3,50 +3,42 @@ class OrderService {
         this.Order = client.db().collection('orders')
     }
 
-    /**
-        params: {
-            username,
-            customer: {
-                name,
-                phone,
-                address,
-                email,
-                province,
-                district,
-                ward
-            },
-            status,
-            order_date,
-            shipped_date,
-            delivered_date,
-            total_price,
-            products: [
-                {
-                    id_product,
-                    amount,
-                    price,
-                    name_product,
-                    image_product
-                }
-            ]
-        }
-    */ 
+    async getOrder(username) {
+        const orders = await this.Order.find({
+            username
+        }).toArray()
+        // ignore _id, username
+        orders.forEach(order => {
+            delete order._id
+            delete order.username
+        })
+        return orders
+    }
 
     async createOrder(params) {
-        const { username, customer, status, order_date, shipped_date, delivered_date, total_price, products } = params
+        const { orderID, username, customer, status, order_date, total_price, products } = params
         const order = {
+            orderID,
             username,
             customer,
             status,
             order_date,
-            shipped_date,
-            delivered_date,
             total_price,
             products
         }
-        const result = await this.Order.insertOne(order)
-        return result.ops[0]
+        try {
+            await this.Order.insertOne(order)
+            return {
+                ...order,
+                username: undefined,
+                _id: undefined
+            }
+        } catch (error) {
+            throw new Error(`Failed to create order: ${error.message}`)
+        }
     }
+
 }
+
 
 export default OrderService;

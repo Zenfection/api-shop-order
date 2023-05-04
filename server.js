@@ -5,7 +5,7 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import {MongoDB, print, type} from '@utils'
-import { usersRouter, categoriesRouter, productsRouter } from './app/routes/index.js'
+import { usersRouter, categoriesRouter, productsRouter, ordersRouter } from './app/routes/index.js'
 import { Exception }  from './app/errors/index.js'
 import checkToken from './app/middlewares/auth.js'
 
@@ -27,6 +27,7 @@ app.use(express.json())
 app.use('/users', usersRouter)
 app.use('/categories', categoriesRouter)
 app.use('/products', productsRouter)
+app.use('/orders', ordersRouter)
 
 
 const handleMongoDBError = (error) => {

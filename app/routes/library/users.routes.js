@@ -1,6 +1,6 @@
 import express from 'express'
 import { body, oneOf } from 'express-validator'
-import { userController, cartController, orderController } from '@controllers'
+import { userController, cartController } from '@controllers'
 
 const router = express.Router()
 
@@ -8,11 +8,11 @@ router.get('/:id', userController.getDetailUser)
 
 router.post('/login', [
     oneOf([
-    body('username')
-        .exists()
-        .isLength({ min: 5 }),
-    body('email')
-        .exists().isEmail()
+        body('username')
+            .exists()
+            .isLength({ min: 5 }),
+        body('email')
+            .exists().isEmail()
     ]), body('password').exists().isString(),
 ], userController.login);
 
@@ -48,16 +48,5 @@ router.post('/removecart', [
     body('id_product').exists().isString(),
     body('amount').exists().isInt({ min: 1 })
 ], cartController.deleteCart)
-
-router.post('/createorder', [
-    body('username').exists().isString(),
-    body('customer').exists().isObject(),
-    body('status').exists().isString(),
-    body('order_date').exists().isString(),
-    body('shipped_date').exists().isString(),
-    body('delivered_date').exists().isString(),
-    body('total_price').exists().isInt({ min: 0 }),
-    body('products').exists().isArray()
-], orderController.createOrder)
 
 export default router

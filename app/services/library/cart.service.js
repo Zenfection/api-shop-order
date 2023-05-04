@@ -114,6 +114,13 @@ class CartService {
             message: 'Cart not found'
         }
     }
+
+    async clearCart() {
+        await this.Cart.deleteMany({})
+        return {
+            message: 'Clear cart successfully'
+        }
+    }
 }
 
 export default CartService;

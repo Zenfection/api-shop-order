@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 import httpStatus from 'http-status';
 
 const PUBLIC_URLS_REGEX = /\/users\/(login|register)|\/categories|\/products|\/products\/count/;
-const BEARER_PREFIX = 'Bearer ';
 
 const byPassToken = (req) => {
     const url = req.url.toLowerCase().trim();
@@ -47,9 +46,12 @@ export default async function checkToken(req, res, next) {
         }
         return next();
     } catch (error) {
-        return res.status(httpStatus.UNAUTHORIZED).json({
-            message: 'Unauthorized',
+        console.error(`Error in ${req.method} ${req.url}: ${error}`);
+        return res.status(httpStatus.BAD_REQUEST).json({
+            message: 'Error occurred',
             error: error.message,
+            url: req.url,
+            method: req.method,
         });
     }
 }
