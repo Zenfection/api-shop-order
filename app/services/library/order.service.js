@@ -3,16 +3,32 @@ class OrderService {
         this.Order = client.db().collection('orders')
     }
 
-    async getOrder(username) {
-        const orders = await this.Order.find({
-            username
-        }).toArray()
-        // ignore _id, username
-        orders.forEach(order => {
-            delete order._id
-            delete order.username
-        })
-        return orders
+    async getOrder(params) {
+        //TODO username, orderID
+        const { username, orderID } = params
+        if(orderID){
+            const order = await this.Order.findOne({
+                orderID
+            })
+            if(order){
+                delete order._id
+                delete order.username
+                return order
+            }
+            throw new Error('Order not found')
+        } 
+        if(username){
+            const orders = await this.Order.find({
+                username
+            }).toArray()
+            if(orders){
+                orders.forEach(order => {
+                    delete order._id
+                    delete order.username
+                })
+                return orders
+            }
+        }
     }
 
     async createOrder(params) {

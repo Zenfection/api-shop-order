@@ -13,11 +13,11 @@ const handleRequest = async (req, res, next, action) => {
             return res.status(httpStatus.BAD_REQUEST).json({ errors: errors.array() })
         }
 
-        const { username, customer, total_price, products } = req.body
+        const { username, orderID, customer, total_price, products } = req.body
 
         // Call the action with the order service
         const order = new OrderService(MongoDB.client)
-        const result = await action(order, username, customer, total_price, products)
+        const result = await action({ order, username, orderID, customer, total_price, products })
         res.status(httpStatus.OK).json(result)
     } catch (exception) {
         // Handle any errors
@@ -26,8 +26,9 @@ const handleRequest = async (req, res, next, action) => {
 }
 
 const getOrder = async (req, res, next) => {
-    handleRequest(req, res, next, async (order, username) => {
-        const result = await order.getOrder(username)
+    handleRequest(req, res, next, async ({order, username, orderID}) => {
+        const params = { username, orderID }
+        const result = await order.getOrder(params)
         if(result){
             return result
         }

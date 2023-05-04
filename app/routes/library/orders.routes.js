@@ -5,7 +5,8 @@ import { orderController } from '@controllers'
 const router = express.Router()
 
 router.post('/get', [
-    body('username').exists().isString()
+    body('username').exists().isString(),
+    body('orderID').optional().isString()
 ], orderController.getOrder)
 
 router.post('/create', [
