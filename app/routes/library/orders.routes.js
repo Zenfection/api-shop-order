@@ -4,11 +4,17 @@ import { orderController } from '@controllers'
 
 const router = express.Router()
 
-router.post('/get', [
+//* Get all orders
+router.post('/', [
     body('username').exists().isString(),
-    body('orderID').optional().isString()
-], orderController.getOrder)
+], orderController.getAllOrder)
 
+//* Get order by id
+router.post('/:id', [
+    body('username').exists().isString(),
+], orderController.getOrderDetail)
+
+//* Create order
 router.post('/create', [
     body('username').exists().isString(),
     body('customer').exists().isObject(),

@@ -13,7 +13,8 @@ const handleRequest = async (req, res, next, action) => {
             return res.status(httpStatus.BAD_REQUEST).json({ errors: errors.array() })
         }
 
-        const { username, orderID, customer, total_price, products } = req.body
+        const { username, customer, total_price, products } = req.body
+        const orderID = req.params.id
 
         // Call the action with the order service
         const order = new OrderService(MongoDB.client)
@@ -25,14 +26,17 @@ const handleRequest = async (req, res, next, action) => {
     }
 }
 
-const getOrder = async (req, res, next) => {
+const getAllOrder = async (req, res, next) => {
+    handleRequest(req, res, next, async ({order, username}) => {
+        const result = await order.getAllOrder(username)
+        return (result) ? result : new Error('Failed to get order')
+    })
+}
+
+const getOrderDetail = async(req, res, next) => {
     handleRequest(req, res, next, async ({order, username, orderID}) => {
-        const params = { username, orderID }
-        const result = await order.getOrder(params)
-        if(result){
-            return result
-        }
-        throw new Error('Failed to get order')
+        const result = await order.getOrderDetail(username, orderID)
+        return (result) ? result : new Error('Failed to get order detail: ' + orderID)
     })
 }
 
@@ -54,12 +58,13 @@ const createOrder = async (req, res, next) => {
     })
 }
 
-const updateOrder = async (req, res, next) => {
+// const updateOrder = async (req, res, next) => {
 
-}
+// }
 
 export default {
-    getOrder,
+    getAllOrder,
+    getOrderDetail,
     createOrder,
-    updateOrder
+    // updateOrder
 }

@@ -2,33 +2,24 @@ class OrderService {
     constructor(client) {
         this.Order = client.db().collection('orders')
     }
+    async getAllOrder(username) {
+        const orders = await this.Order.find({
+            username
+        }).toArray()
 
-    async getOrder(params) {
-        //TODO username, orderID
-        const { username, orderID } = params
+        if(!orders) throw new Error('Failed to get orders')
+        return orders
+    }
+
+    async getOrderDetail(username, orderID) {
         if(orderID){
             const order = await this.Order.findOne({
+                username,
                 orderID
             })
-            if(order){
-                delete order._id
-                delete order.username
-                return order
-            }
-            throw new Error('Order not found')
+            if(!order) throw new Error('Failed to get order detail')
+            return order
         } 
-        if(username){
-            const orders = await this.Order.find({
-                username
-            }).toArray()
-            if(orders){
-                orders.forEach(order => {
-                    delete order._id
-                    delete order.username
-                })
-                return orders
-            }
-        }
     }
 
     async createOrder(params) {
