@@ -14,11 +14,11 @@ const handleRequest = async (req, res, next, action) => {
         }
 
         const { username, customer, total_price, products } = req.body
-        const orderID = req.params.id
+        const orderID = req.params?.id || null
 
         // Call the action with the order service
         const order = new OrderService(MongoDB.client)
-        const result = await action({ order, username, orderID, customer, total_price, products })
+        const result = await action(order, { username, orderID, customer, total_price, products })
         res.status(httpStatus.OK).json(result)
     } catch (exception) {
         // Handle any errors
@@ -27,26 +27,29 @@ const handleRequest = async (req, res, next, action) => {
 }
 
 const getAllOrder = async (req, res, next) => {
-    handleRequest(req, res, next, async ({order, username}) => {
+    handleRequest(req, res, next, async (order, params) => {
+        const { username } = params
         const result = await order.getAllOrder(username)
         return (result) ? result : new Error('Failed to get order')
     })
 }
 
 const getOrderDetail = async(req, res, next) => {
-    handleRequest(req, res, next, async ({order, username, orderID}) => {
+    handleRequest(req, res, next, async (order, params) => {
+        const { username, orderID } = params
         const result = await order.getOrderDetail(username, orderID)
         return (result) ? result : new Error('Failed to get order detail: ' + orderID)
     })
 }
 
 const createOrder = async (req, res, next) => {
-    handleRequest(req, res, next, async (order, username, customer, total_price, products) => {
+    handleRequest(req, res, next, async (order, params) => {
+        const { username } = params
         const orderID = nanoid(10).toUpperCase() //? generate orderID
         const status = 0 //? 0: Peeding, 1: Shipping, 2: Delivered, -1: Cancelled
         const order_date = new Date().toLocaleDateString('en-GB') //? format dd/mm/yyyy
         
-        const params = { orderID, username, customer, status, order_date, total_price, products }
+        params = { ...params, orderID, status, order_date }
         const result = await order.createOrder(params)
         if(result){
             // clearCart
