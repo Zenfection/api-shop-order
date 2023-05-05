@@ -7,7 +7,7 @@ import { nanoid } from 'nanoid'
 
 const handleRequest = async (req, res, next, action) => {
     try {
-        // Validate request
+        //? Validate request
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
             return res.status(httpStatus.BAD_REQUEST).json({ errors: errors.array() })
@@ -16,15 +16,23 @@ const handleRequest = async (req, res, next, action) => {
         const { username, customer, total_price, products } = req.body
         const orderID = req.params?.id || null
 
-        // Call the action with the order service
+        //? Create params object with non-null and non-undefined values only
+        const params = Object.fromEntries(
+            Object.entries({ username, orderID, customer, total_price, products })
+                .filter(([key, value]) => value != null)
+        )
+
+        //? Call the action with the order service
         const order = new OrderService(MongoDB.client)
-        const result = await action(order, { username, orderID, customer, total_price, products })
+        const result = await action(order, params)
+
         res.status(httpStatus.OK).json(result)
     } catch (exception) {
         // Handle any errors
         next(createError(httpStatus.INTERNAL_SERVER_ERROR, exception))
     }
 }
+
 
 const getAllOrder = async (req, res, next) => {
     handleRequest(req, res, next, async (order, params) => {
