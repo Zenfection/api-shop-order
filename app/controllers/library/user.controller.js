@@ -7,16 +7,6 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { ObjectId } from 'mongodb'
 
-
-/*
-    1. login
-    2. register
-    3. get detail user
-    4. update user
-    5. delete user
-    6. get list user
-*/
-
 const login = async (req, res) => {
     //? Validate request
     const errors = validationResult(req)

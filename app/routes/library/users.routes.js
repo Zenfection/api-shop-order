@@ -17,10 +17,14 @@ router.post('/login', [
 ], userController.login);
 
 
-router.post('/register', userController.register)
+router.post('/register',[
+    body('username').exists().isString().isLength({ min: 6 }),
+    body('fullname').exists().isString().isLength({ min: 6 }),
+    body('email').exists().isEmail(),
+    body('password').exists().isString().isLength({ min: 6 }),
+] ,userController.register)
 
 router.patch('/update', [
-    //username, fullname, email, password, active, phone, address, province, district, ward
     body('username').optional().isString(),
     body('fullname').optional().isString(),
     body('email').optional().isEmail(),

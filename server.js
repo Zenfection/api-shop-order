@@ -18,12 +18,14 @@ app.use(cors({    //? bảo mật chính sách request
   methods: ['GET', 'POST', 'PUT', 'PATCH','DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept'],
 }))
+
 const PORT = process.env.PORT || 3000;
+const MONGODB_URI = process.env.MONGODB_URI
 
 app.use(checkToken)
 app.use(express.json())
 
-// routers
+//! Config Routes
 app.use('/users', usersRouter)
 app.use('/categories', categoriesRouter)
 app.use('/products', productsRouter)
@@ -42,12 +44,11 @@ const handleMongoDBError = (error) => {
 
 const startServer = async() => {
   try {
-      await MongoDB.connect(process.env.MONGODB_URI, () => {
-        print('Connected to MongoDB', type.SUCCESS)
-      })
+      await MongoDB.connect(MONGODB_URI)
+      print('Connected to MongoDB', type.INFO)
       
       app.listen(PORT, () => {
-        print(`Server is running on port ${PORT}`, type.SUCCESS)
+        print(`Server is running on port ${PORT}`, type.INFO)
       })
   } catch (error) {
       handleMongoDBError(error);

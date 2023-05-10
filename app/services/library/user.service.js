@@ -1,53 +1,8 @@
 import { ObjectId } from 'mongodb';
-import validator from 'validator';
 
 class UserService {
     constructor(client) {
         this.User = client.db().collection('users')
-    }
-
-    async validate(user) {
-        const errors = {};
-
-        //* username, fullname, email, password, phone, address, province, district, ward
-        if (!validator.isLength(user.username, { min: 6 }) || !validator.isAlphanumeric(user.username)) {
-            errors.username = 'Username length must be at least 6 characters and only contain letters and numbers'
-        } else if (!validator.isLength(user.fullname, { min: 6 })) {
-            errors.fullname = 'Fullname length must be at least 6 characters'
-        } else if (!validator.isEmail(user.email)) {
-            errors.email = 'Email is not valid'
-        } else if (!validator.isLength(user.password, { min: 6 })) {
-            errors.password = 'Password length must be at least 6 characters'
-        }
-
-        //* phone
-        if (user.phone && !validator.isMobilePhone(user.phone)) {
-            errors.phone = 'Phone is not valid';
-        }
-
-        //* address, province, district, ward
-        if (user.address && !validator.isLength(user.address, { min: 6 })) {
-            errors.address = 'Address length must be at least 6 characters';
-        }
-        if (user.province && !validator.isLength(user.province, { min: 2 })) {
-            errors.province = 'Province length must be at least 2 characters';
-        }
-        if (user.district && !validator.isLength(user.district, { min: 2 })) {
-            errors.district = 'District length must be at least 2 characters';
-        }
-        if (user.ward && !validator.isLength(user.ward, { min: 2 })) {
-            errors.ward = 'Ward length must be at least 2 characters';
-        }
-
-        let existUser = await this.User.findOne({ email })
-        let existUsername = await this.User.findOne({ username })
-        if (existUser) {
-            errors.email = 'Email is already exist'
-        } else if(existUsername) {
-            errors.username = 'Username is already exist'
-        }
-        
-        return Object.keys(errors).length > 0 ? errors : null
     }
 
     async extactUserData(payload) {
@@ -64,14 +19,6 @@ class UserService {
             province: payload.province ?? null,
             district: payload.district ?? null,
             ward: payload.ward ?? null,
-        }
-
-        const errors = await this.validate(user)
-        if (!!errors) {
-            return {
-                messageError: "Input Error",
-                validationErrors: errors
-            }
         }
 
         Object.keys(user).forEach(

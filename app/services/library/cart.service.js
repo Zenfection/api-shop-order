@@ -6,14 +6,9 @@ class CartService {
     }
 
     async findCart(username) {
-
         //? get cart with username
         const cart = await this.Cart.aggregate([
-            {
-                $match: {
-                    username
-                }
-            },
+            { $match: { username } },
             {
                 $lookup: {
                     from: 'products',
@@ -28,7 +23,6 @@ class CartService {
         ]).toArray()
         
         //? ignore _id, id_product, username, product.sold
-
         cart.forEach(item => {
             delete item.username
             delete item.product.sold
@@ -60,11 +54,7 @@ class CartService {
         }
         // return _id, id_product, amount and product
         const result = await this.Cart.aggregate([
-            {
-                $match: {
-                    id_product
-                }
-            },
+            { $match: { id_product } },
             {
                 $lookup: {
                     from: 'products',
@@ -85,10 +75,7 @@ class CartService {
 
     async deleteCart(username, id_product, amount) {
         id_product = ObjectId.createFromHexString(id_product)
-        const cart = await this.Cart.findOne({
-            username,
-            id_product
-        })
+        const cart = await this.Cart.findOne({ username, id_product })
 
         if (cart) {
             if (cart.amount > amount) {
@@ -115,8 +102,10 @@ class CartService {
         }
     }
 
-    async clearCart() {
-        await this.Cart.deleteMany({})
+    async clearCart(username) {
+        await this.Cart.find({
+            username
+        }).deleteMany()
         return {
             message: 'Clear cart successfully'
         }

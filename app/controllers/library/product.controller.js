@@ -51,6 +51,5 @@ const getProductFilter = async (req, res, next) => {
 export default {
     getProduct,
     getProductFilter,
-
 }
 

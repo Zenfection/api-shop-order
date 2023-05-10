@@ -69,13 +69,8 @@ const createOrder = async (req, res, next) => {
     })
 }
 
-// const updateOrder = async (req, res, next) => {
-
-// }
-
 export default {
     getAllOrder,
     getOrderDetail,
     createOrder,
-    // updateOrder
 }
